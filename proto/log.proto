@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package logs.v1;
+option go_package = "go-log-service/internal/service/pb;pb";
+
+message LogEntry {
+  string ts = 1;                 // RFC3339 or RFC3339Nano
+  string service = 2;
+  string level = 3;
+  string msg = 4;
+  map<string,string> attrs = 5;
+  string trace_id = 6;
+  string span_id = 7;
+}
+
+message BatchWriteRequest { repeated LogEntry entries = 1; }
+message BatchWriteResponse { uint64 written = 1; }
+
+service LogService {
+  rpc BatchWrite(BatchWriteRequest) returns (BatchWriteResponse);
+}
