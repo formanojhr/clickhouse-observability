@@ -24,7 +24,7 @@ func main() {
 	log.Println("[TRACE] Starting go-log-service main...")
 	httpAddr := getenv("HTTP_ADDR", ":8080")
 	grpcAddr := getenv("GRPC_ADDR", ":8081")
-	dsn := getenv("DATABASE_URL", "clickhouse://demo:@localhost:9000/observability?dial_timeout=10s&read_timeout=5s&compression=lz4")
+	dsn := getenv("DATABASE_URL", "clickhouse://default:password@localhost:9000/logs?dial_timeout=10s&read_timeout=5s")
 	batchSize := getenvInt("INGEST_BATCH_SIZE", 500)
 	flushMs := getenvInt("INGEST_MAX_DELAY_MS", 100)
 
@@ -53,14 +53,14 @@ func main() {
 	// HTTP API
 	api := api.New(store)
 	mux := http.NewServeMux()
-	
+
 	// Health endpoints
 	mux.HandleFunc("/live", func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(http.StatusOK) })
 	mux.HandleFunc("/ready", func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(http.StatusOK) })
-	
+
 	// Register API routes
 	api.RegisterRoutes(mux)
-	
+
 	httpSrv := &http.Server{Addr: httpAddr, Handler: mux}
 	go func() {
 		log.Printf("[TRACE] HTTP server listening on %s", httpAddr)

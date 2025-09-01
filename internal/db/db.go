@@ -81,25 +81,25 @@ func (d *DB) QueryLogs(ctx context.Context, service, level, user string, from, t
 	query := `
 		SELECT ts, service, level, msg, attrs, trace_id, span_id
 		FROM logs
-		WHERE service = ? AND ts BETWEEN ? AND ?`
-	
+		WHERE service = ? AND ts >= ? AND ts < ?`
+
 	args := []interface{}{service, from, to}
-	
+
 	if level != "" {
 		query += ` AND level = ?`
 		args = append(args, level)
 	}
-	
+
 	if user != "" {
 		query += ` AND JSONExtractString(attrs, 'user') = ?`
 		args = append(args, user)
 	}
-	
+
 	query += ` ORDER BY ts DESC LIMIT ?`
 	args = append(args, limit)
-	
+
 	log.Printf("[TRACE] Executing ClickHouse query: %s with args: %v", query, args)
-	
+
 	start := time.Now()
 	rows, err := d.QueryContext(ctx, query, args...)
 	if err != nil {
@@ -107,9 +107,9 @@ func (d *DB) QueryLogs(ctx context.Context, service, level, user string, from, t
 		return nil, err
 	}
 	defer rows.Close()
-	
+
 	log.Printf("[TRACE] ClickHouse query executed in %v", time.Since(start))
-	
+
 	var logs []Log
 	for rows.Next() {
 		var l Log
@@ -118,7 +118,7 @@ func (d *DB) QueryLogs(ctx context.Context, service, level, user string, from, t
 			log.Printf("[ERROR] Failed to scan row: %v", err)
 			return nil, err
 		}
-		
+
 		// Parse attrs JSON string back to map
 		if attrsStr != "" {
 			if err := json.Unmarshal([]byte(attrsStr), &l.Attrs); err != nil {
@@ -129,15 +129,15 @@ func (d *DB) QueryLogs(ctx context.Context, service, level, user string, from, t
 		} else {
 			l.Attrs = make(map[string]string)
 		}
-		
+
 		logs = append(logs, l)
 	}
-	
+
 	if err := rows.Err(); err != nil {
 		log.Printf("[ERROR] Error iterating rows: %v", err)
 		return nil, err
 	}
-	
+
 	log.Printf("[TRACE] Successfully retrieved %d logs from ClickHouse", len(logs))
 	return logs, nil
 }
