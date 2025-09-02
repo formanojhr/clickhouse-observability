@@ -1,3 +1,11 @@
+This repo is a learning exercise to adopt AI agents workflow extensively to generate, modify, run and test using infrastructure like clickhouse running in docker. The goal is to almost using AI Agent chat session to generate the scaffolding, any edit etc(with very minimal handwritten code)
+
+**Tools Used**
+Cursor IDE(with different AI agents)
+AI Agents using for coding testing workflow 
+Built in agent chat with - chatgpt 4.0 ( as well as auto mode)
+Cline https://cline.bot/ with Gemini and x-ai/grok-code-fast-1
+
 # clickhouse-observability
 
 
