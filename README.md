@@ -1,4 +1,4 @@
-This repo is a learning exercise to adopt AI agents workflow extensively to generate, modify, run and test using infrastructure like clickhouse running in docker. The goal is to almost using AI Agent chat session to generate the scaffolding, any edit etc(with very minimal handwritten code)
+This repo is a learning exercise to adopt AI agents workflow extensively to generate, modify, run and test using infrastructure like clickhouse running in docker. The goal is to attempt using AI Agent chat session to generate the scaffolding, any fxies, edits etc(with very minimal handwritten code) from an AI assisted IDE.
 
 **Tools Used**
 Cursor IDE(with different AI agents)
