@@ -7,7 +7,36 @@ Built in agent chat with - chatgpt 4.0 ( as well as auto mode)
 Cline https://cline.bot/ with Gemini and x-ai/grok-code-fast-1
 
 # clickhouse-observability
-
+**Core Purpose**
+The gRPC APIs provide a single, efficient endpoint for ingesting structured log data at scale, using ClickHouse as the underlying database for fast analytics and querying.
+Key API Details
+**Main Service**: LogService
+**RPC Method**: BatchWrite(BatchWriteRequest) → BatchWriteResponse
+**Purpose**: Accepts batches of log entries and writes them to ClickHouse database
+**Architecture**: Uses a batching layer for efficiency (fire-and-forget semantics)
+**Log Data Structure (LogEntry message):**
+ts: Timestamp (RFC3339 format)
+service: Service name (used for partitioning)
+level: Log level (INFO, WARN, ERROR, etc.)
+msg: Log message
+attrs: Key-value attributes (stored as JSON)
+trace_id, span_id: Distributed tracing support
+**System Architecture**
+gRPC Layer: Receives log batches via BatchWrite
+Batching Layer: Accumulates logs and flushes to DB based on:
+Batch size (default: 500 entries)
+Time window (default: 100ms)
+Database Layer: ClickHouse with optimized schema:
+Partitioned by month (toYYYYMM(ts))
+Ordered by (service, ts)
+LowCardinality columns for service/level
+MergeTree engine for analytical queries
+Use Cases
+Microservices Logging: Collect logs from distributed services
+Observability Pipelines: High-volume log ingestion for monitoring
+Distributed Tracing: Store trace/span IDs with logs
+Analytics: Query logs by service, time range, level, and attributes
+The design prioritizes ingestion speed over immediate consistency, making it suitable for high-throughput logging scenarios where you need to collect and analyze logs from multiple services efficiently.
 
 <!-- Run Server -->
 go run ./cmd/server
